@@ -1,11 +1,5 @@
 <?php
-/*************************************************************************
-php easy :: whois lookup script
-==========================================================================
-Author:      php easy code, www.phpeasycode.com
-Web Site:    http://www.phpeasycode.com
-Contact:     webmaster@phpeasycode.com
-*************************************************************************/
+
 
 $domain = $_GET['domain'];
 
@@ -371,9 +365,7 @@ function QueryWhoisServer($whoisserver, $domain) {
 </head>
 
 <body>
-<form action="<?=$_SERVER['PHP_SELF'];?>">
-<p><b><label for="domain">Domain/IP Address:</label></b> <input type="text" name="domain" id="domain" value="<?=$domain;?>"> <input type="submit" value="Lookup"></p>
-</form>
+
 <?php
 if($domain) {
 	$domain = trim($domain);
