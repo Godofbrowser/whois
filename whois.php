@@ -68,7 +68,7 @@ endif;
 
 
 
-	var ajaxurl = "http://localhost/code-challenge/d.php";
+	var ajaxurl = "d.php";
 
 
 
