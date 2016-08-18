@@ -63,15 +63,12 @@ endif;
 
 <script>
 	var interval = 1.2; //timeout in minutes
-		interval = Number(interval * 1000);
+	var i = 0; //used for selecting urls array index
 	var no = (function(){ var count = 1; return function(){return count++;}})();
 
 
 
-	var url = 501;
-	var phone = 08010000000;
-	var timer = setInterval("display(url, phone)",interval);
-
+	var ajaxurl = "http://localhost/code-challenge/d.php";
 
 
 
@@ -80,9 +77,36 @@ endif;
 		var template = "<tr><td>"+no()+"</td><td>"+x+"</td><td>"+y+"</td></tr>";
 		var elem = document.getElementById('url-table');
 		elem.innerHTML = elem.innerHTML + " \n " + template;
-		url++; phone++;
-		if(url > 520) {clearTimeout(timer);}
 	}
+
+	function get_data()
+	{
+		//alert(1);
+		var ajax = new XMLHttpRequest();
+			ajax.open("GET", ajaxurl+"?domain="+urls[i], true);
+			ajax.send();
+			ajax.onreadystatechange = function() {
+
+				//if (ajax.readyState == 4){ (ajax.status + "\n\n" + ajax.responseText); }
+
+				if (ajax.readyState == 4 && ajax.status == 200)
+				{
+					//alert("Response as ok! ");
+					var data = ajax.responseText;
+					var phone = data.match(/Phone:[\s+\n+]*[\+\.\d]+/) || 'NOT FOUND';
+						//phone = phone.replace(/Phone:/,"");
+
+					display(urls[i], phone);
+					if( i < 10 ){ var timer = setTimeout("get_data()",interval * 1000); }
+					return;
+				}
+
+				return;
+			}
+
+			i++;
+	}
+	get_data();
 </script>
 </body>
 </html>
