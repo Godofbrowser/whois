@@ -1,6 +1,6 @@
 <?php
 
-//lets check for the file
+//lets create an array of urls from file
 $filename = "reel.txt";
 if(file_exists($filename)):
 	$file = fopen($filename, 'r');
@@ -44,13 +44,21 @@ endif;
 		label{width: 80%;padding: 5px 10%; margin: 10px auto;}
 		input[type="number"]{padding: 10px; width: 80%; margin-left: 9%; margin-top: 10px;}
 		input[type="submit"]{padding: 10px; width: 60%; margin-left: 20%; margin-top: 10px;} -->
+
+		#status{
+			background-color: grey;
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			text-align: center;
+		}
 	</style>
 
-	<script>
-			var urls = <?= json_encode($urls) ?>;
-	</script>
+
 </head>
 <body>
+<h1 align="center">Whois Domain Registrant's Info  Extractor</h1>
 
 <?php if(isset($urls)): ?>
 	<table id="url-table">
@@ -59,18 +67,21 @@ endif;
 
 
 	</table>
+	<div id="status"></div>
 <?php endif; ?>
 
 <script>
 	var interval = 1.2; //timeout in minutes
-	var i = 0; //used for selecting urls array index
+	var urlIndex = 0; //used for selecting urls array index
+	var urls = <?= json_encode($urls) ?>; // the generated array of urls from file
+	var timer;
 	var no = (function(){ var count = 1; return function(){return count++;}})();
 
 
 
 	var ajaxurl = "d.php";
 
-
+	window.onload = get_data(urlIndex);
 
 	function display(x, y)
 	{
@@ -79,11 +90,12 @@ endif;
 		elem.innerHTML = elem.innerHTML + " \n " + template;
 	}
 
-	function get_data()
+	function get_data(x)
 	{
 		//alert(1);
 		var ajax = new XMLHttpRequest();
-			ajax.open("GET", ajaxurl+"?domain="+urls[i], true);
+			ajax.open("GET", ajaxurl+"?domain="+urls[x], true);
+			//ajax.timeout = 3000;
 			ajax.send();
 			ajax.onreadystatechange = function() {
 
@@ -93,20 +105,21 @@ endif;
 				{
 					//alert("Response as ok! ");
 					var data = ajax.responseText;
-					var phone = data.match(/Phone:[\s+\n+]*[\+\.\d]+/) || 'NOT FOUND';
+					var url = data.match(/[\s+\n+]*[\w\d]+\.(?:\w){2,6}(?: domain)/) || 'NOT FOUND';
+					var phone = data.match(/(?:Phone:)(?:[\s+\n+]*)[\+\.\d]+/) || 'NOT FOUND';
 						//phone = phone.replace(/Phone:/,"");
+					if(url == 'NOT FOUND' || data == ''){ NetworkError(); timer = setTimeout("get_data(urlIndex)",interval * 1000); return; }
+					else { display(url, phone); }
+					if( urlIndex < urls.length ){ NetworkOK(); urlIndex++; timer = setTimeout("get_data(urlIndex)",interval * 1000); return; }
 
-					display(urls[i], phone);
-					if( i < 10 ){ var timer = setTimeout("get_data()",interval * 1000); }
-					return;
 				}
 
 				return;
-			}
-
-			i++;
+			};
 	}
-	get_data();
+
+	function NetworkError(){ document.getElementById('status').innerHTML = 'Network Problem, Retrying...'; }
+	function NetworkOK(){ document.getElementById('status').innerHTML = ''; }
 </script>
 </body>
 </html>
